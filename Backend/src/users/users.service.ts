@@ -3,11 +3,13 @@ import { Model } from 'mongoose';
 import { Users } from './entities/user.entity';
 import { InjectModel } from '@nestjs/mongoose'
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Visits } from './entities/visit.entity';
 
 @Injectable()
 export class UsersService {
 
-  constructor(@InjectModel('Users') private readonly usersModel: Model<Users>) { }
+  constructor(@InjectModel('Users') private readonly usersModel: Model<Users>,
+    @InjectModel('Visits') private readonly visitModel: Model<Visits>) { }
 
   async signup(email: string, password: string, name: string, profileImage: string) {
     let user;
@@ -50,6 +52,18 @@ export class UsersService {
       "name": user.name,
       "profileImage": "http://localhost:5000/public/" + user.profileImage,
     };
+  }
+
+  async visitProfile(visitBy: string, visitTo: string) {
+    const newVisit = new this.visitModel({ visitBy: visitBy, visitTo: visitTo, visitByUsername: visitBy })
+    return await newVisit.save();
+  }
+
+  async getWhoVisitMyProfile(myId: string) {
+    const visitedUser = await this.visitModel.find({ visitTo: myId }).populate(
+      "visitByUsername"
+    );
+    return visitedUser.map((users) => ({ id: users.id, visitByUsername: (users.visitByUsername?.name) }))
   }
 
   async getUsers() {

@@ -17,6 +17,16 @@ export class UsersController {
     return this.usersService.login(email, password);
   }
 
+  @Get(':visitBy/:visitTo')
+  async visitProfile(@Param('visitBy') visitBy: string, @Param('visitTo') visitTo: string) {
+    return this.usersService.visitProfile(visitBy, visitTo);
+  }
+
+  @Get('getWhoVisitMyProfile/:myId')
+  getWhoVisitMyProfile(@Param('myId') myId: string) {
+    return this.usersService.getWhoVisitMyProfile(myId);
+  }
+
   @Get(':id')
   getUser(@Param('id') userId: string) {
     return this.usersService.getSingleUser(userId);
